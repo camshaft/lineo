@@ -13,4 +13,11 @@ do_transform(attribute, {attribute,_,file,{_,Line}} = Form, _Context, _) ->
 do_transform(_Type, Form, _Context, undefined) ->
   {Form, true, undefined};
 do_transform(_Type, Form, _Context, Line) ->
-  {erl_syntax:revert(erl_syntax:set_pos(Form, Line)), true, Line}.
+  Reverted = erl_syntax:revert(Form),
+  Form2 = case element(1, Reverted) of
+    tree ->
+      Reverted;
+    _ ->
+      setelement(2, erl_syntax:revert(Form), Line)
+  end,
+  {Form2, true, Line}.
